@@ -93,6 +93,11 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.eol lf
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           cache: pnpm
@@ -117,11 +122,16 @@ jobs:
           # Need to fetch entire commit history to
           # analyze every commit since last release
           fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           cache: pnpm
           node-version: lts/*
-      - run: pnpm clean-install
+      - run: pnpm install --frozen-lockfile
       - run: pnpm audit signatures
         # Branches that will release new versions are defined in .releaserc.json
       - run: pnpx semantic-release
