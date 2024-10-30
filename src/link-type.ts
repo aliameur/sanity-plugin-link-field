@@ -3,10 +3,10 @@ import {defineField, defineType, type ObjectInputProps} from 'sanity'
 
 import {CustomLinkInput} from './components/CustomLinkInput'
 import {LinkInput} from './components/LinkInput'
+import {LinkPreview} from './components/LinkPreview'
 import {LinkTypeInput} from './components/LinkTypeInput'
 import {isCustomLink} from './helpers/typeGuards'
 import {LinkFieldPluginOptions, LinkValue} from './types'
-import {LinkPreview} from './components/LinkPreview'
 
 export const buildLinkType = ({
   linkableSchemaTypes = ['page'],
