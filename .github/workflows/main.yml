@@ -50,7 +50,8 @@ jobs:
         with:
           cache: pnpm
           node-version: lts/*
-      - run: pnpm clean-install
+      - run: npm install -g pnpm # Install pnpm
+      - run: pnpm install --frozen-lockfile # Install dependencies using pnpm
         # Linting can be skipped
       - run: pnpm run lint --if-present
         if: github.event.inputs.test != 'false'
