@@ -5,6 +5,8 @@ import {LinkInput} from './components/LinkInput'
 import {LinkTypeInput} from './components/LinkTypeInput'
 import {isCustomLink} from './helpers/typeGuards'
 import type {LinkFieldPluginOptions, LinkValue} from './types'
+import {LinkIcon} from 'lucide-react'
+import {buildLinkType} from './link-type'
 
 /**
  * A plugin that adds a custom Link field for creating internal and external links,
@@ -60,203 +62,15 @@ export const linkField = definePlugin<LinkFieldPluginOptions | void>((opts) => {
     customLinkTypes = [],
   } = opts || {}
 
-  const linkType = {
-    name: 'link',
-    title: 'Link',
-    type: 'object',
-    fieldsets: [
-      {
-        name: 'advanced',
-        title: 'Advanced',
-        description: descriptions.advanced,
-        options: {
-          collapsible: true,
-          collapsed: true,
-        },
-      },
-    ],
-    fields: [
-      defineField({
-        name: 'text',
-        type: 'string',
-        description: descriptions.text,
-      }),
-
-      defineField({
-        name: 'type',
-        type: 'string',
-        initialValue: 'internal',
-        validation: (Rule) => Rule.required(),
-        components: {
-          input: (props) => LinkTypeInput({customLinkTypes, linkableSchemaTypes, ...props}),
-        },
-      }),
-
-      // Internal
-      defineField({
-        name: 'internalLink',
-        type: 'reference',
-        to: linkableSchemaTypes.map((type) => ({
-          type,
-        })),
-        weak: weakReferences,
-        options: {
-          disableNew: true,
-          ...referenceFilterOptions,
-        },
-        description: descriptions?.internal,
-        hidden: ({parent}) => !!parent?.type && parent?.type !== 'internal',
-      }),
-
-      // External
-      defineField({
-        name: 'url',
-        type: 'url',
-        description: descriptions?.external,
-        validation: (rule) =>
-          rule.uri({
-            allowRelative: true,
-            scheme: ['https', 'http'],
-          }),
-        hidden: ({parent}) => parent?.type !== 'external',
-      }),
-
-      // E-mail
-      defineField({
-        name: 'email',
-        type: 'email',
-        description: descriptions?.email,
-        hidden: ({parent}) => parent?.type !== 'email',
-      }),
-
-      // Phone
-      defineField({
-        name: 'phone',
-        type: 'string',
-        description: descriptions?.phone,
-        validation: (rule) =>
-          rule.custom((value, context) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (!value || (context.parent as any)?.type !== 'phone') {
-              return true
-            }
-
-            return (
-              (new RegExp(/^\+?[0-9\s-]*$/).test(value) &&
-                !value.startsWith('-') &&
-                !value.endsWith('-')) ||
-              'Must be a valid phone number'
-            )
-          }),
-        hidden: ({parent}) => parent?.type !== 'phone',
-      }),
-
-      // Custom
-      defineField({
-        name: 'value',
-        type: 'string',
-        description: descriptions?.external,
-        hidden: ({parent}) => !parent || !isCustomLink(parent as LinkValue),
-        components: {
-          input: (props) => CustomLinkInput({customLinkTypes, ...props}),
-        },
-      }),
-
-      // New tab
-      defineField({
-        title: 'Open in new window',
-        name: 'blank',
-        type: 'boolean',
-        initialValue: false,
-        description: descriptions.blank,
-        hidden: ({parent}) => parent?.type === 'email' || parent?.type === 'phone',
-      }),
-
-      // Parameters
-      ...(enableLinkParameters || enableAnchorLinks
-        ? [
-            ...(enableLinkParameters
-              ? [
-                  defineField({
-                    title: 'Parameters',
-                    name: 'parameters',
-                    type: 'string',
-                    description: descriptions.parameters,
-                    validation: (rule) =>
-                      rule.custom((value, context) => {
-                        if (
-                          !value ||
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          (context.parent as any)?.type === 'email' ||
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          (context.parent as any)?.type === 'phone'
-                        ) {
-                          return true
-                        }
-
-                        if (value.indexOf('?') !== 0) {
-                          return 'Must start with ?; eg. ?utm_source=example.com&utm_medium=referral'
-                        }
-
-                        if (value.length === 1) {
-                          return 'Must contain at least one parameter'
-                        }
-
-                        return true
-                      }),
-                    hidden: ({parent}) => parent?.type === 'email' || parent?.type === 'phone',
-                    fieldset: 'advanced',
-                  }),
-                ]
-              : []),
-
-            // Anchor
-            ...(enableAnchorLinks
-              ? [
-                  defineField({
-                    title: 'Anchor',
-                    name: 'anchor',
-                    type: 'string',
-                    description: descriptions.anchor,
-                    validation: (rule) =>
-                      rule.custom((value, context) => {
-                        if (
-                          !value ||
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          (context.parent as any)?.type === 'email' ||
-                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          (context.parent as any)?.type === 'phone'
-                        ) {
-                          return true
-                        }
-
-                        if (value.indexOf('#') !== 0) {
-                          return 'Must start with #; eg. #page-section-1'
-                        }
-
-                        if (value.length === 1) {
-                          return 'Must contain at least one character'
-                        }
-
-                        return (
-                          new RegExp(/^([-?/:@._~!$&'()*+,;=a-zA-Z0-9]|%[0-9a-fA-F]{2})*$/).test(
-                            value.replace(/^#/, ''),
-                          ) || 'Invalid URL fragment'
-                        )
-                      }),
-                    hidden: ({parent}) => parent?.type === 'email' || parent?.type === 'phone',
-                    fieldset: 'advanced',
-                  }),
-                ]
-              : []),
-          ]
-        : []),
-    ],
-    components: {
-      input: (props: ObjectInputProps) =>
-        LinkInput({customLinkTypes, ...props, value: props.value as LinkValue}),
-    },
-  }
+  const linkType = buildLinkType({
+    linkableSchemaTypes,
+    customLinkTypes,
+    enableAnchorLinks,
+    enableLinkParameters,
+    descriptions,
+    weakReferences,
+    referenceFilterOptions,
+  })
 
   return {
     name: 'link-field',
