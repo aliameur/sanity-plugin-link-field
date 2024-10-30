@@ -46,11 +46,15 @@ jobs:
     name: Lint & Build
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
       - uses: actions/setup-node@v4
         with:
           cache: pnpm
           node-version: lts/*
-      - run: npm install -g pnpm # Install pnpm
       - run: pnpm install --frozen-lockfile # Install dependencies using pnpm
         # Linting can be skipped
       - run: pnpm run lint --if-present
