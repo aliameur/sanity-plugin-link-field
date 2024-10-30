@@ -1,12 +1,7 @@
-import {defineField, definePlugin, defineType, type ObjectInputProps} from 'sanity'
+import {definePlugin, defineType} from 'sanity'
 
-import {CustomLinkInput} from './components/CustomLinkInput'
-import {LinkInput} from './components/LinkInput'
-import {LinkTypeInput} from './components/LinkTypeInput'
-import {isCustomLink} from './helpers/typeGuards'
-import type {LinkFieldPluginOptions, LinkValue} from './types'
-import {LinkIcon} from 'lucide-react'
 import {buildLinkType} from './link-type'
+import type {LinkFieldPluginOptions} from './types'
 
 /**
  * A plugin that adds a custom Link field for creating internal and external links,

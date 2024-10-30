@@ -1,5 +1,5 @@
 import {LinkIcon} from 'lucide-react'
-import {defineField, defineType, type ObjectInputProps, useClient, useSchema} from 'sanity'
+import {defineField, defineType, type ObjectInputProps} from 'sanity'
 
 import {CustomLinkInput} from './components/CustomLinkInput'
 import {LinkInput} from './components/LinkInput'
