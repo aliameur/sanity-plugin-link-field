@@ -34,6 +34,10 @@ export function CustomLinkInput(
           .options(document, props.path, workspace.currentUser)
           .then((options) => setOptions(options))
       }
+      // @ts-expect-error - we know that value exists in linkvalue
+      if (customLinkType && !linkValue?.value) {
+        props.onChange(set(''))
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customLinkType, props.path, workspace.currentUser])

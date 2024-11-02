@@ -51,7 +51,7 @@ export const buildLinkType = ({
         name: 'type',
         type: 'string',
         initialValue: 'internal',
-        validation: (Rule) => Rule.required(),
+        // validation: (Rule) => Rule.required(),
         components: {
           input: (props) =>
             LinkTypeInput({
