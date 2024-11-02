@@ -1,4 +1,5 @@
 {
   "extends": "@sanity/semantic-release-preset",
-  "branches": ["main"]
+  "branches": ["main"],
+  "plugins": [["@semantic-release/release-notes-generator", {}]]
 }

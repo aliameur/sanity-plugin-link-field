@@ -43,6 +43,7 @@ export function CustomLinkInput(
       onChange={(e) => {
         props.onChange(set(e.currentTarget.value || ''))
       }}
+      defaultValue=""
     >
       <>
         <option value="" selected={props.value === ''} disabled hidden />
